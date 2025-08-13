@@ -1,36 +1,89 @@
-// Objeto com as "palavras secretas" para cada produto.
-// VOCÊ DEVE MUDAR ESTES VALORES PARA ALGO QUE SÓ VOCÊ SAIBA.
-const productSecrets = {
-    "PROD001": "SEGREDO_DO_PRODUTO_UM", // Segredo para o Guia Essencial
-    "PROD002": "SEGREDO_DOIS_PLANNER"   // Segredo para o Planner de Conteúdo
-    // Adicione mais segredos aqui conforme adiciona produtos
-};
-
-// Função que gera a senha diária
-function generatePassword(productId) {
-    const secret = productSecrets[productId];
-    if (!secret) {
-        return null; // Produto não encontrado
+// =======================================================
+// PARTE 1: LISTA DE PRODUTOS (SEUS DADOS)
+// =======================================================
+const myProducts = [
+    {
+        id: "PROD001",
+        secret: "SEGREDO_DO_PRODUTO_UM",
+        title: "Título do Produto 1: Guia Essencial",
+        driveLink: "LINK_DO_SEU_ARQUIVO_NO_GOOGLE_DRIVE_1",
+        details: {
+            "Tempo de Leitura": "45 minutos",
+            "Aplicação": "Para iniciantes em marketing digital",
+            "Páginas": "30 páginas",
+            "Valor": "R$ 49,90"
+        }
+    },
+    {
+        id: "PROD002",
+        secret: "SEGREDO_DOIS_PLANNER",
+        title: "Título do Produto 2: Planner de Conteúdo",
+        driveLink: "LINK_DO_SEU_ARQUIVO_NO_GOOGLE_DRIVE_2",
+        details: {
+            "Tempo de Leitura": "N/A (Ferramenta)",
+            "Aplicação": "Organização de postagens",
+            "Páginas": "15 páginas",
+            "Valor": "R$ 29,90"
+        }
     }
-    const today = new Date();
-    // Formata a data como DDMMYYYY
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
-    const year = today.getFullYear();
-    
-    // A senha será a junção do segredo com a data. Ex: SEGREDO_DO_PRODUTO_UM25122025
-    const password = secret + day + month + year;
-    return password;
+    // Para adicionar um novo produto, basta adicionar um novo bloco {} aqui
+];
+
+// Seu número de WhatsApp
+const whatsappNumber = "5511999998888";
+
+
+// =======================================================
+// PARTE 2: LÓGICA (NÃO PRECISA MAIS MEXER AQUI)
+// =======================================================
+
+// Função que gera os cards de produto na tela
+function renderProducts() {
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = ''; // Limpa a lista antes de adicionar
+
+    myProducts.forEach(product => {
+        let detailsHtml = '';
+        for (const [key, value] of Object.entries(product.details)) {
+            detailsHtml += `<li><strong>${key}:</strong> ${value}</li>`;
+        }
+
+        const whatsappMessage = encodeURIComponent(`Olá! Tenho interesse no '${product.title}'.`);
+
+        const productCardHtml = `
+            <div class="product-card">
+                <h2>${product.title}</h2>
+                <ul>${detailsHtml}</ul>
+                <div class="product-buttons">
+                    <a href="https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${whatsappMessage}" target="_blank" class="whatsapp-btn">Falar no WhatsApp</a>
+                    <button class="download-btn" data-product-id="${product.id}">Download</button>
+                </div>
+            </div>
+        `;
+        productList.innerHTML += productCardHtml;
+    });
 }
 
-// Adiciona o evento de clique a todos os botões de download
-document.querySelectorAll('.download-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const productId = button.getAttribute('data-product-id');
-        const driveLink = button.getAttribute('data-drive-link');
-        
-        const correctPassword = generatePassword(productId);
+// Função que gera a senha
+function generatePassword(productId) {
+    const product = myProducts.find(p => p.id === productId);
+    if (!product) return null;
 
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return product.secret + day + month + year;
+}
+
+// Adiciona o evento de clique dinamicamente
+document.addEventListener('click', function(event) {
+    if (event.target.matches('.download-btn')) {
+        const button = event.target;
+        const productId = button.getAttribute('data-product-id');
+        const product = myProducts.find(p => p.id === productId);
+
+        const correctPassword = generatePassword(productId);
         if (!correctPassword) {
             alert("Erro de configuração: Produto não encontrado.");
             return;
@@ -40,10 +93,12 @@ document.querySelectorAll('.download-btn').forEach(button => {
 
         if (userPassword === correctPassword) {
             alert("Senha correta! O download começará agora.");
-            window.open(driveLink, '_blank'); // Abre o link do Google Drive
-        } else if (userPassword) { // Se o usuário digitou algo e errou
+            window.open(product.driveLink, '_blank');
+        } else if (userPassword) {
             alert("Senha incorreta. Por favor, verifique a senha e tente novamente.");
         }
-        // Se o usuário clicou em "Cancelar" (userPassword é null), não faz nada.
-    });
+    }
 });
+
+// Inicia o processo quando a página carrega
+document.addEventListener('DOMContentLoaded', renderProducts);
