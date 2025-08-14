@@ -1,104 +1,44 @@
-// =======================================================
-// PARTE 1: LISTA DE PRODUTOS (SEUS DADOS)
-// =======================================================
 const myProducts = [
     {
-        id: "PROD001",
-        secret: "SEGREDO_DO_PRODUTO_UM",
-        title: "Título do Produto 1: Guia Essencial",
+        id: "PLANO001",
+        secret: "CIENCIAS_ECOSISTEMAS_2025",
+        title: "Plano de Aula Completo: Ecossistemas",
         driveLink: "LINK_DO_SEU_ARQUIVO_NO_GOOGLE_DRIVE_1",
+        thumbnail: "https://link-para-sua-imagem.com/ecossistemas.jpg", // <-- NOVO
+        
+        // --- NOVOS CAMPOS PARA FILTROS E ÍCONES ---
+        grade: "5º Ano",
+        subject: "Ciências",
+        resourceType: "Plano de Aula",
+        technologies: ["Google Slides", "PDF", "Google Forms"],
+        bncc: ["EF05CI04", "EF05CI05"],
+        
         details: {
-            "Tempo de Leitura": "45 minutos",
-            "Aplicação": "Para iniciantes em marketing digital",
-            "Páginas": "30 páginas",
-            "Valor": "R$ 49,90"
+            "Duração Estimada": "2 aulas (50 min cada)",
+            "Recursos Inclusos": "Apresentação de Slides, PDF de Atividades, Quiz Avaliativo",
+            "Páginas": "12 páginas de atividades",
+            "Valor": "R$ 35,00"
         }
     },
     {
-        id: "PROD002",
-        secret: "SEGREDO_DOIS_PLANNER",
-        title: "Título do Produto 2: Planner de Conteúdo",
+        id: "ATIV002",
+        secret: "MATEMATICA_FRACOES_2025",
+        title: "Atividade Prática: Pizza de Frações",
         driveLink: "LINK_DO_SEU_ARQUIVO_NO_GOOGLE_DRIVE_2",
+        thumbnail: "https://link-para-sua-imagem.com/fracoes.jpg", // <-- NOVO
+
+        // --- NOVOS CAMPOS PARA FILTROS E ÍCONES ---
+        grade: "4º Ano",
+        subject: "Matemática",
+        resourceType: "Atividade Prática",
+        technologies: ["PDF", "Jamboard"],
+        bncc: ["EF04MA09"],
+
         details: {
-            "Tempo de Leitura": "N/A (Ferramenta)",
-            "Aplicação": "Organização de postagens",
-            "Páginas": "15 páginas",
-            "Valor": "R$ 29,90"
+            "Duração Estimada": "1 aula (50 min)",
+            "Recursos Inclusos": "Folha de atividade para impressão, link do template no Jamboard",
+            "Páginas": "5 páginas",
+            "Valor": "R$ 19,90"
         }
     }
-    // Para adicionar um novo produto, basta adicionar um novo bloco {} aqui
 ];
-
-// Seu número de WhatsApp
-const whatsappNumber = "5511999998888";
-
-
-// =======================================================
-// PARTE 2: LÓGICA (NÃO PRECISA MAIS MEXER AQUI)
-// =======================================================
-
-// Função que gera os cards de produto na tela
-function renderProducts() {
-    const productList = document.getElementById('product-list');
-    productList.innerHTML = ''; // Limpa a lista antes de adicionar
-
-    myProducts.forEach(product => {
-        let detailsHtml = '';
-        for (const [key, value] of Object.entries(product.details)) {
-            detailsHtml += `<li><strong>${key}:</strong> ${value}</li>`;
-        }
-
-        const whatsappMessage = encodeURIComponent(`Olá! Tenho interesse no '${product.title}'.`);
-
-        const productCardHtml = `
-            <div class="product-card">
-                <h2>${product.title}</h2>
-                <ul>${detailsHtml}</ul>
-                <div class="product-buttons">
-                    <a href="https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${whatsappMessage}" target="_blank" class="whatsapp-btn">Falar no WhatsApp</a>
-                    <button class="download-btn" data-product-id="${product.id}">Download</button>
-                </div>
-            </div>
-        `;
-        productList.innerHTML += productCardHtml;
-    });
-}
-
-// Função que gera a senha
-function generatePassword(productId) {
-    const product = myProducts.find(p => p.id === productId);
-    if (!product) return null;
-
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    return product.secret + day + month + year;
-}
-
-// Adiciona o evento de clique dinamicamente
-document.addEventListener('click', function(event) {
-    if (event.target.matches('.download-btn')) {
-        const button = event.target;
-        const productId = button.getAttribute('data-product-id');
-        const product = myProducts.find(p => p.id === productId);
-
-        const correctPassword = generatePassword(productId);
-        if (!correctPassword) {
-            alert("Erro de configuração: Produto não encontrado.");
-            return;
-        }
-
-        const userPassword = prompt(`Para baixar, por favor, insira a senha do produto que eu te passei:`);
-
-        if (userPassword === correctPassword) {
-            alert("Senha correta! O download começará agora.");
-            window.open(product.driveLink, '_blank');
-        } else if (userPassword) {
-            alert("Senha incorreta. Por favor, verifique a senha e tente novamente.");
-        }
-    }
-});
-
-// Inicia o processo quando a página carrega
-document.addEventListener('DOMContentLoaded', renderProducts);
